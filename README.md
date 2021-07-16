@@ -1,4 +1,24 @@
 # Kafka Connect sink connector for JDBC
+
+Thhis is a customised version of the original IBM code. Changes are:
+
+1) Only works for PostgreSQL
+2) Assumes the Kafka record value is a JSON object
+3) If table doesn't exist, creates it with 2 columns, id (integer) and json_object (jsonb)
+4) Inserts the JSON object into the json_object columns for every record.
+
+Possible improvements: Could allow custom column names.
+
+Notes: 
+
+1 Seems to well reliably, if the Kafka record isn't valid JSON then PostgreSQL throws an exception, the record is ignored, and the connector keeps on going with the next record.
+
+2 table.name.format in the config file MUST have have a value in the format "schemaName.tableName" - i.e. a schema is mandatory
+
+3 No other changes to the configuration are required.
+
+From here, the original documentation (with testing removed as it no longer accepts schema and payload format records).
+
 kafka-connect-jdbc-sink is a [Kafka Connect](http://kafka.apache.org/documentation.html#connect) sink connector for copying data from Apache Kafka into a JDBC database.
 
 The connector is supplied as source code which you can easily build into a JAR file.
@@ -162,40 +182,6 @@ curl -s -X POST -H 'Content-Type: application/json' --data @config/jdbc-connecto
 You can verify that your connector was properly registered by going to `http://localhost:8083/connectors` which 
 should return a full list of available connectors.  This JSON connector profile will be propegated to all workers
 across the distributed system.  After following these steps your connector will now run in distributed mode.
-
-## Testing
-
-1. Run a kafka producer using the following value.schema by entering the following command:
-
-```shell
-kafka-console-producer --broker-list localhost:9092 --topic kafka_test
-```
-
-The console producer will now wait for the output.
-
-2. Copy the following record into the producer terminal:
-
-```shell
-{"schema": {"type": "struct","fields": [{"type": "string","optional": false,"field": "Name"}, {"type": "string","optional": false,"field": "company"}],"optional": false,"name": "Person"},"payload": {"Name": "Roy Jones","company": "General Motors"}}
-```
-
-3. Open up the command-line client of your JDBC database and verify that a record has been added into the target database table.
-If the database table did not exist prior to this, it would have been created by this process.
-
-Be sure to target the proper database by using `\c <database_name>` or `USE <database_name>;`.
-
-```sql
-select * from company;
-```
-
-4. You should be able to see your newly created record added to this database table as follows:
-
-```
- id |   timestamp   |   name    |    company     
-----+------+---------------+-----------+----------------
-  1 | 1587969949600 | Roy Jones |  General Motors
-```
-
 
 ## Issues and contributions
 
