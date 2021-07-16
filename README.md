@@ -1,6 +1,8 @@
 # Kafka Connect sink connector for JDBC
 
-Thhis is a customised version of the original IBM code. Changes are:
+Thhis is a customised version of the original IBM code for "demonstration" use only. It was developed for the pipeline blog series to get NOAA Tidal data (which is structured JSON) into PostgreSQL in the simplest possible way. 
+
+Changes are:
 
 1) Only works for PostgreSQL
 2) Assumes the Kafka record value is a JSON object
